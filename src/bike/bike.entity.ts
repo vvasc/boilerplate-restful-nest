@@ -9,5 +9,5 @@ export class Bike {
   modelo: string;
 
   @Column('text')
-  description: string;
+  descricao: string;
 }
