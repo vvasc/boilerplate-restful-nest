@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Repository } from 'typeorm';
 
 import { User } from './user.entity';
@@ -15,31 +13,42 @@ export class UserService {
     private readonly UserRepository: Repository<User>,
   ) {}
 
-  create(userModel: UserModel): Observable<any> {
+  async create(userModel: UserModel) {
     const hash = bcrypt.hashSync(userModel.password, 10);
     const user = {
       email: userModel.email,
       password: `${hash}`,
     };
-    const createdUser = this.UserRepository.create(user);
-    return from(this.UserRepository.save(createdUser));
+    const userFounded = await this.findByEmail(user.email);
+    if (userFounded === false) {
+      const createdUser = this.UserRepository.create(user);
+      return await this.UserRepository.save(createdUser);
+    } else {
+      return new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Este e-mail já está cadastrado',
+      }, 403);
+    }
   }
 
-  findAll(): Observable<User[]> {
-    return from(this.UserRepository.find());
+  async findAll() {
+    return this.UserRepository.find();
   }
 
-  findByEmail(email: string): Observable<User> {
-    const userFounded = this.UserRepository.createQueryBuilder()
+  async findByEmail(email: string) {
+    const userFounded = await this.UserRepository.createQueryBuilder()
       .where('User.email = :email')
       .setParameter('email', email)
       .getOne();
-    return from(userFounded);
+    if (userFounded) {
+      return userFounded;
+    } else {
+      return false;
+    }
   }
 
-  delete(id: string): Observable<any> {
-    return from(this.UserRepository.findByIds([id])).pipe(
-      map((user) => this.UserRepository.remove(user)),
-    );
+  async delete(id: string) {
+    const user = await this.UserRepository.findByIds([id]);
+    this.UserRepository.remove(user);
   }
 }

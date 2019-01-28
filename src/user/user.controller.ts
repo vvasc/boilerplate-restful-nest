@@ -8,22 +8,22 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() userModel: UserModel) {
-    this.userService.create(userModel);
+  async create(@Body() userModel: UserModel) {
+    return await this.userService.create(userModel);
   }
 
   @Get()
-  findAll(): Observable<any> {
-    return this.userService.findAll();
+  async findAll() {
+    return await this.userService.findAll();
   }
 
   @Get('findByEmail')
-  find(@Body() userEmail: any): any {
-    return this.userService.findByEmail(userEmail.email);
+  async find(@Body() userEmail: any) {
+    return await this.userService.findByEmail(userEmail.email);
   }
 
   @Delete()
-  deleteOne(@Body() userID: any): Observable<any> {
-    return this.userService.delete(userID);
+  async deleteOne(@Body() userID: any) {
+    return await this.userService.delete(userID);
   }
 }
