@@ -8,7 +8,7 @@
 [linux-url]: https://travis-ci.org/nestjs/nest
 
 ## Instalação
-Instale o PostgreSQL e configure um novo DB com o conteúdo do e-mail
+Instale o PostgreSQL e configure um novo DB
 ```bash
 $ npm install
 ```
